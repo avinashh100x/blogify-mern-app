@@ -6,33 +6,32 @@ import jwt from 'jsonwebtoken';
 export const signup = async (req, res, next) => {
   const { username, email, password } = req.body;
 
-if (
-  !username ||
-  !email ||
-  !password ||
-  username === '' ||
-  email === '' ||
-  password === '')
-  {
-  next(errorHandler(400, 'All fields are required'));
-}
+  if (
+    !username ||
+    !email ||
+    !password ||
+    username === '' ||
+    email === '' ||
+    password === '') {
+    next(errorHandler(400, 'All fields are required'));
+  }
 
-const hashedPassword = bcryptjs.hashSync(password, 10);
+  const hashedPassword = bcryptjs.hashSync(password, 10);
 
-const isAdmin = email === 'admin@gmail.com' && password === 'admin';
+  const isAdmin = email === 'admin@gmail.com' && password === 'admin';
 
-const newUser = new User({
-  username,
-  email,
-  password: hashedPassword,
-  isAdmin,
-});
+  const newUser = new User({
+    username,
+    email,
+    password: hashedPassword,
+    isAdmin,
+  });
 
-try {
+  try {
     await newUser.save();
     res.json('Signup successful');
   } catch (error) {
-      next(error);
+    next(error);
   }
 };
 
@@ -43,7 +42,7 @@ export const signin = async (req, res, next) => {
     next(errorHandler(400, 'All fields are required'));
   }
 
-  try{
+  try {
     const validUser = await User.findOne({ email });
     if (!validUser) {
       return next(errorHandler(404, 'User not found'));
@@ -53,7 +52,8 @@ export const signin = async (req, res, next) => {
       return next(errorHandler(400, 'Invalid password'));
     }
     const token = jwt.sign(
-      { id: validUser._id,
+      {
+        id: validUser._id,
         isAdmin: validUser.isAdmin
       },
       process.env.JWT_SECRET
@@ -115,6 +115,6 @@ export const google = async (req, res, next) => {
         .json(rest);
     }
   } catch (error) {
-      next(error);
+    next(error);
   }
 }
